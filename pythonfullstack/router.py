@@ -1,11 +1,15 @@
 from flask import send_from_directory
-from controllers.books_controller import bp as books_bp
+from controllers.books_controller import books_blueprint
 import os
 
-FRONTEND_PATH = os.path.join(os.path.dirname(__file__), "frontend", "pages")
+FRONTEND_PATH = os.path.join(
+    os.path.dirname(__file__),
+    "frontend",
+    "pages"
+)
 
 def register_routes(app):
-    app.register_blueprint(books_bp)
+    app.register_blueprint(books_blueprint, url_prefix="/api/books")
 
     @app.route("/", defaults={"path": ""})
     @app.route("/<path:path>")

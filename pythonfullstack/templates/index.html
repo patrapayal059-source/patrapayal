@@ -2,14 +2,19 @@
 <html>
 <head>
   <title>Library Management</title>
-  <link rel="stylesheet" href="styles.css">
+  <!-- <link rel="stylesheet" href="styles.css"> -->
+   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-  <h1>Library Management</h1>
+  <h1>Welcome to the Home Page!</h1>
+    <a href="/login">Go to Login</a>
+  
+   
 
   <section>
     <h2 id="form-title">Add Book</h2>
-    <form id="book-form">
+   <form id="book-form" method="POST" action="/add-book">
+
       <input type="hidden" id="book-id">
 
       <label>Title</label>
@@ -26,6 +31,9 @@
 
       <button type="submit">Save</button>
       <button id="cancel-edit" type="button" style="display:none">Cancel</button>
+
+
+      
     </form>
   </section>
 
@@ -34,8 +42,8 @@
     <input id="search" placeholder="search...">
     <ul id="books-list"></ul>
   </section>
+<script src="{{ url_for('static', filename='api.js') }}"></script>
+<script src="{{ url_for('static', filename='booksController.js') }}"></script>
 
-  <script src="api.js"></script>
-  <script src="booksController.js"></script>
 </body>
 </html>

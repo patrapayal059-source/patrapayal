@@ -8,12 +8,12 @@ service = BookService()
 @books_blueprint.route("/", methods=["POST"])
 def add_book():
     data = request.json
-    return jsonify(service.add_book(data)), 201
+    return jsonify(service.create_book(data)), 201
 
 # READ ALL
 @books_blueprint.route("/", methods=["GET"])
 def get_books():
-    return jsonify(service.get_all_books())
+    return jsonify(service.list_books())
 
 # READ ONE
 @books_blueprint.route("/<int:book_id>", methods=["GET"])
@@ -30,4 +30,3 @@ def update_book(book_id):
 @books_blueprint.route("/<int:book_id>", methods=["DELETE"])
 def delete_book(book_id):
     return jsonify(service.delete_book(book_id))
-

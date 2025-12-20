@@ -2,6 +2,14 @@ import sqlite3
 from pathlib import Path
 
 DB_PATH = Path(__file__).resolve().parent.parent / "library.db"
+import sqlite3
+
+DB_FILE = "library.db"
+
+def get_db():
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row  # Optional: return dict-like rows
+    return conn
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
@@ -23,5 +31,8 @@ def init_db():
         """)
         conn.commit()
         conn.close()
+        print("✅ Database created successfully!")
+    else:
+        print("✔️ Database already exists. Skipping creation.")
 
 init_db()

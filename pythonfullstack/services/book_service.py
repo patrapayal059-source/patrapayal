@@ -184,7 +184,6 @@ if __name__ == "__main__":
     updated_data = {"title": "Python Basics Updated", "author": "Jane Doe", "isbn": "1234567890", "year": 2025}
     updated_book = BookService.update_book(book["id"], updated_data)
     print("Updated Book:", updated_book)
-
     # Get single book
     print("Get Book:", BookService.get_book(book["id"]))
 
