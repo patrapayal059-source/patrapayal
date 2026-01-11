@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 style="text-align:center;">Books List</h2>
+
+<form method="POST" action="{{ url_for('books.add_book') }}" style="text-align:center; margin-bottom:20px;">
+    <input type="text" name="book_name" placeholder="Enter book name" required>
+    <button type="submit" class="add-book-btn">Add Book</button>
+</form>
+
+<table class="books-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Book Name</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for book in books %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ book }}</td>
+            <td>
+                <a href="{{ url_for('books.delete_book', book_id=loop.index0) }}" class="delete-btn">❌ Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

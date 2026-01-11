@@ -1,0 +1,96 @@
+
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Navbar stays same */
+.navbar {
+    background: #1f2933;
+    padding: 15px;
+}
+
+.navbar a {
+    color: white;
+    margin-right: 20px;
+    text-decoration: none;
+}
+
+/* ✅ CENTER EVERYTHING */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;   /* horizontal center */
+    margin-top: 40px;
+}
+
+/* Book form */
+form {
+    margin-bottom: 20px;
+}
+
+/* Book list */
+ul {
+    list-style-position: inside;
+    padding: 0;
+}
+
+/* Optional: better spacing */
+li {
+    margin: 8px 0;
+}
+/* .library-image {
+    position: fixed;
+    bottom: 20px;     /* distance from bottom */
+    /* right: 20px;      /* change to left: 20px if you want left corner */
+    /* width: 200px;     /* adjust size */
+   
+
+.home-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;      /* horizontal center */
+    justify-content: center;  /* vertical center */
+    min-height: 80vh;
+    text-align: center;
+}
+
+.home-image {
+    width: 300px;        /* adjust size if needed */
+    margin-top: 20px;
+}
+/* NAVBAR */
+.navbar {
+    background-color: #1f2a37;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    margin-right: 15px;
+    font-weight: bold;
+}
+
+.navbar a:hover {
+    text-decoration: underline;
+}
+
+/* PAGE CONTAINER */
+.container {
+    padding: 20px;
+}
+
+/* CENTER IMAGE */
+.center-image {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.center-image img {
+    max-width: 600px;
+    width: 100%;
+}

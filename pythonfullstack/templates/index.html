@@ -1,49 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Library Management</title>
-  <!-- <link rel="stylesheet" href="styles.css"> -->
-   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-  <h1>Welcome to the Home Page!</h1>
-    <a href="/login">Go to Login</a>
-  
-   
 
-  <section>
-    <h2 id="form-title">Add Book</h2>
-   <form id="book-form" method="POST" action="/add-book">
-
-      <input type="hidden" id="book-id">
-
-      <label>Title</label>
-      <input id="title" required>
-
-      <label>Author</label>
-      <input id="author" required>
-
-      <label>ISBN</label>
-      <input id="isbn" required>
-
-      <label>Year</label>
-      <input id="year" type="number">
-
-      <button type="submit">Save</button>
-      <button id="cancel-edit" type="button" style="display:none">Cancel</button>
-
-
-      
-    </form>
-  </section>
-
-  <section>
-    <h2>Books</h2>
-    <input id="search" placeholder="search...">
-    <ul id="books-list"></ul>
-  </section>
-<script src="{{ url_for('static', filename='api.js') }}"></script>
-<script src="{{ url_for('static', filename='booksController.js') }}"></script>
-
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+<h1>📚 Library Management System</h1>
+<p>Welcome to the Library</p>
+{% endblock %}

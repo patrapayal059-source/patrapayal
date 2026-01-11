@@ -1,18 +1,25 @@
-from database.db import get_db
-from werkzeug.security import check_password_hash
+from database.database import get_connection
 
-class UserService:
 
-    @staticmethod
-    def authenticate(userid, password):
-        db = get_db()
-        user = db.execute(
-            "SELECT * FROM users WHERE userid = ?",
-            (userid,)
-        ).fetchone()
+def get_users():
+    conn = get_connection()
+    users = conn.execute("SELECT * FROM users").fetchall()
+    conn.close()
+    return users
 
-        if user and check_password_hash(user["password"], password):
-            return user
 
-        return None
+def add_user(name, roll, department, library_id):
+    conn = get_connection()
+    conn.execute(
+        "INSERT INTO users (name, roll, department, library_id) VALUES (?, ?, ?, ?)",
+        (name, roll, department, library_id)
+    )
+    conn.commit()
+    conn.close()
 
+
+def delete_user(user_id):
+    conn = get_connection()
+    conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    conn.commit()
+    conn.close()
