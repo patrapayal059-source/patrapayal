@@ -1,33 +1,79 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>User Profile</h2>
 
-<form method="POST">
-    <input type="text" name="name" placeholder="Name" required><br><br>
-    <input type="text" name="rollno" placeholder="Roll No" required><br><br>
-    <input type="text" name="department" placeholder="Department" required><br><br>
-    <input type="text" name="library_id" placeholder="Library ID" required><br><br>
-    <button type="submit">Save</button>
-</form>
+<h2 class="title">User Profile</h2>
 
-<hr>
+<!-- USER FORM IN TABLE -->
+<table class="book-table">
+    <tbody>
+        <form method="POST">
+            <tr class="add-row">
+                <td><strong>Name</strong></td>
+                <td>
+                    <input type="text" name="name" placeholder="Enter Name" required>
+                </td>
+            </tr>
 
-<h3>Registered Users</h3>
+            <tr class="add-row">
+                <td><strong>Roll No</strong></td>
+                <td>
+                    <input type="text" name="rollno" placeholder="Enter Roll No" required>
+                </td>
+            </tr>
+
+            <tr class="add-row">
+                <td><strong>Department</strong></td>
+                <td>
+                    <input type="text" name="department" placeholder="Enter Department" required>
+                </td>
+            </tr>
+
+            <tr class="add-row">
+                <td><strong>Library ID</strong></td>
+                <td>
+                    <input type="text" name="library_id" placeholder="Enter Library ID" required>
+                </td>
+            </tr>
+
+            <tr class="add-row">
+                <td colspan="2">
+                    <button type="submit" class="add-btn">Save</button>
+                </td>
+            </tr>
+        </form>
+    </tbody>
+</table>
+
+<br><br>
+
+<h2 class="title">Registered Users</h2>
 
 {% if users %}
-    <ul>
+<table class="book-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Roll No</th>
+            <th>Department</th>
+            <th>Library ID</th>
+        </tr>
+    </thead>
+    <tbody>
         {% for user in users %}
-            <li>
-                <strong>Name:</strong> {{ user.name }} |
-                <strong>Roll No:</strong> {{ user.rollno }} |
-                <strong>Department:</strong> {{ user.department }} |
-                <strong>Library ID:</strong> {{ user.library_id }}
-            </li>
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.rollno }}</td>
+            <td>{{ user.department }}</td>
+            <td>{{ user.library_id }}</td>
+        </tr>
         {% endfor %}
-    </ul>
+    </tbody>
+</table>
 {% else %}
-    <p>No users added yet.</p>
+<p style="text-align:center;">No users added yet.</p>
 {% endif %}
 
 {% endblock %}
