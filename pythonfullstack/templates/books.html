@@ -1,45 +1,95 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2 class="title">Books List</h2>
+<div class="books-wrapper">
+    <h1 class="page-title">📚 Books Library</h1>
+    <p style="text-align: center; color: #475569; margin-bottom: 30px;">
+        Add books under categories and view them later
+    </p>
 
-<table class="book-table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Book Name</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        <!-- ADD BOOK ROW -->
-        <tr class="add-row">
-            <form method="POST">
-                <td>—</td>
-                <td>
-                    <input type="text" name="book_name" placeholder="Enter book name" required>
-                </td>
-                <td>
-                    <button type="submit" class="add-btn">Add Book</button>
-                </td>
-            </form>
-        </tr>
-
-        <!-- BOOK DATA -->
-        {% for book in books %}
-        <tr>
-            <td>{{ loop.index }}</td>
-            <td>{{ book }}</td>
-            <td>
-                <a href="{{ url_for('books.delete_book', book_id=loop.index0) }}"
-                   class="delete-btn">
-                    Delete
-                </a>
-            </td>
-        </tr>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="alert {{ cat }}" style="margin-bottom: 20px;">{{ msg }}</div>
         {% endfor %}
-    </tbody>
-</table>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Add Book Form -->
+    <div style="background: white; padding: 25px; border-radius: 12px; 
+                box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 30px;
+                border-left: 5px solid #38bdf8;">
+        <h2 style="margin-top: 0; color: #1e293b;">➕ Add New Book</h2>
+        
+        <form action="{{ url_for('books.add_book_route') }}" method="POST">
+
+            <select name="category" required class="form-select">
+    <option value="">Select Category</option>
+    {% for cat in categories %}
+        <option value="{{ cat }}">{{ cat }}</option>
+    {% endfor %}
+</select>
+
+            <input type="text" 
+                   name="book_name" 
+                   placeholder="Book Name" 
+                   required
+                   style="flex: 1; min-width: 200px; padding: 12px; border: 2px solid #cbd5e1; 
+                          border-radius: 8px; font-size: 15px; outline: none;">
+            
+            <input type="text" 
+                   name="author" 
+                   placeholder="Author Name" 
+                   required
+                   style="flex: 1; min-width: 200px; padding: 12px; border: 2px solid #cbd5e1; 
+                          border-radius: 8px; font-size: 15px; outline: none;">
+            
+            <input type="text" 
+                   name="isbn" 
+                   placeholder="ISBN (optional)" 
+                   style="flex: 1; min-width: 150px; padding: 12px; border: 2px solid #cbd5e1; 
+                          border-radius: 8px; font-size: 15px; outline: none;">
+            
+            <button type="submit" class="btn-primary" style="white-space: nowrap;">
+                💾 Save Book
+            </button>
+        </form>
+    </div>
+
+    <!-- Category Grid -->
+    <h2 style="text-align: center; color: #1e293b; margin-bottom: 20px;">
+        📁 Book Categories
+    </h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+                gap: 20px; margin-top: 25px;">
+        {% for cat in categories %}
+        <a href="{{ url_for('books.book_detail', category=cat) }}" 
+           style="text-decoration: none;">
+            <div style="background: white; padding: 30px; border-radius: 12px; 
+                        text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+                        transition: all 0.3s ease; border-left: 5px solid #38bdf8;
+                        cursor: pointer;">
+                <div style="font-size: 48px; margin-bottom: 12px;">📁</div>
+                <h3 style="color: #1e293b; margin: 0; font-size: 20px;">{{ cat }}</h3>
+                <p style="color: #64748b; margin-top: 8px; font-size: 14px;">View Books</p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .books-wrapper a > div:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(56, 189, 248, 0.3);
+    }
+
+    .book-form input:focus {
+        border-color: #38bdf8 !important;
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+    }
+</style>
 
 {% endblock %}

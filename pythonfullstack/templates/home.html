@@ -1,12 +1,39 @@
 {% extends "base.html" %}
-
 {% block content %}
-<h1>Library Management System</h1>
 
-<div class="center-image">
-    <img
-        src="{{ url_for('static', filename='images/imageslibrary.png') }}"
-        alt="Library Image"
-    >
+<div class="home-wrapper">
+    <div class="home-container">
+
+        <!-- Hero Image -->
+        <div class="hero-section">
+            <img src="{{ url_for('static', filename='images/library-hero.png') }}"
+                 alt="Library Illustration"
+                 class="hero-image">
+        </div>
+
+        <!-- Text Content -->
+        <h1>Library Management System</h1>
+        <p>Welcome to the Library! Manage your book collection easily.</p>
+
+     <!-- Secondary Buttons -->
+        <div class="button-group">
+            <a href="{{ url_for('books.books') }}" class="btn secondary-btn">
+                View Books
+            </a>
+
+            <a href="{{ url_for('users.profile') }}" class="btn outline-btn">
+                User Profiles
+            </a>
+        </div>
+
+    </div>
 </div>
+
 {% endblock %}
+
+
+
+
+
+
+

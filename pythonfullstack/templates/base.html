@@ -1,21 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Library System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
 
+<!-- Navigation Bar -->
 <nav class="navbar">
-    <a href="{{ url_for('home') }}">Home</a>
-    <a href="{{ url_for('books.books') }}">Books</a>
-  <a href="{{ url_for('users.profile') }}">Profile</a>
+    <div style="display: flex; gap: 20px;">
+        <a href="/">Home</a>
+        <a href="{{ url_for('books.books') }}">Books</a>
+<a href="{{ url_for('books.saved_books') }}">Saved Books</a>
+ <a href="{{ url_for('users.profile') }}">Profile</a>
+       <a href="{{ url_for('report.report') }}">📊 Report</a>
 
+    </div>
 </nav>
 
-<div class="container">
-    {% block content %}{% endblock %}
-</div>
+<!-- Main Content -->
+{% block content %}{% endblock %}
 
 </body>
 </html>
+

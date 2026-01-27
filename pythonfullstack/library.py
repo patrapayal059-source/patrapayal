@@ -1,17 +1,30 @@
 
 # APP+ROUTET
+# pythonfullstack/library.py
+
 from flask import Flask, render_template
+
+# import blueprints
 from controllers.books_controller import books_bp
 from controllers.user_controller import users_bp
+from controllers.report_controller import report_bp
 
-app = Flask(__name__)  # ✅ DEFAULT is CORRECT
+# ================== CREATE APP FIRST ==================
+app = Flask(__name__)
 
+# ================== CONFIG ==================
+app.secret_key = "super-secret-key"   # required for flash messages
+
+# ================== REGISTER BLUEPRINTS ==================
 app.register_blueprint(books_bp)
 app.register_blueprint(users_bp)
+app.register_blueprint(report_bp)
 
+# ================== HOME ROUTE ==================
 @app.route("/")
 def home():
     return render_template("home.html")
 
+# ================== RUN APP ==================
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5001, debug=True)

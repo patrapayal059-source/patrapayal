@@ -1,6 +1,15 @@
 
 {% extends "base.html" %}
+
 {% block content %}
-<h1>📚 Library Management System</h1>
-<p>Welcome to the Library</p>
+
+<div class="home-container">
+    <!-- Center Image -->
+    <img
+        src="{{ url_for('static', filename='images/library_hero.png') }}"
+        alt="Library Management System"
+        class="home-image"
+    >
+</div>
+
 {% endblock %}

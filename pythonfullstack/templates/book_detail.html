@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="books-wrapper">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h1 class="page-title" style="margin: 0;">📘 {{ category }} Books</h1>
+        <a href="{{ url_for('books.books') }}" 
+           style="background: #6c757d; color: white; padding: 10px 20px; 
+                  border-radius: 8px; text-decoration: none; font-weight: 600;">
+            ⬅ Back to Categories
+        </a>
+    </div>
+
+    <!-- Books Display -->
+    <div style="background: white; padding: 25px; border-radius: 12px; 
+                box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+        <h2 style="margin-top: 0; color: #1e293b;">📚 {{ category }} Books ({{ books|length }})</h2>
+        
+        {% if books %}
+        <table class="books-table">
+            <thead>
+                <tr>
+                    <th style="background: #f1f5f9; padding: 12px; text-align: center;">#</th>
+                    <th style="background: #f1f5f9; padding: 12px; text-align: left;">Book Name</th>
+                    <th style="background: #f1f5f9; padding: 12px; text-align: left;">Author</th>
+                    <th style="background: #f1f5f9; padding: 12px; text-align: center;">ISBN</th>
+                    <th style="background: #f1f5f9; padding: 12px; text-align: center;">Date Added</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for b in books %}
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px; text-align: center; font-weight: 600; color: #38bdf8;">
+                        {{ loop.index }}
+                    </td>
+                    <td style="padding: 12px; font-weight: 600; color: #1e293b;">
+                        {{ b['book_name'] }}
+                    </td>
+                    <td style="padding: 12px; color: #475569;">
+                        {{ b['author'] }}
+                    </td>
+                    <td style="padding: 12px; text-align: center; color: #64748b;">
+                        {{ b['isbn'] or 'N/A' }}
+                    </td>
+                    <td style="padding: 12px; text-align: center; color: #059669; font-weight: 600;">
+                        📅 {{ b['date_added'] }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align: center; padding: 40px; color: #94a3b8;">
+            <div style="font-size: 64px; margin-bottom: 15px;">📭</div>
+            <p style="font-size: 18px; margin: 0;">No {{ category }} books found</p>
+            <p style="font-size: 14px; margin-top: 8px;">Add books from the main Books page</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .books-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+
+    .books-table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+</style>
+
+{% endblock %}
