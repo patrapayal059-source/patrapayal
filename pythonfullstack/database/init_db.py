@@ -43,12 +43,12 @@ CREATE TABLE IF NOT EXISTS users (
 cur.execute("""
 CREATE TABLE issued_books (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    book_name TEXT NOT NULL,
-    issue_date TEXT NOT NULL,
-    return_date TEXT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    user_id INTEGER,
+    book_name TEXT,
+    issue_date DATE,
+    return_date DATE
 );
+
 
 """)
 

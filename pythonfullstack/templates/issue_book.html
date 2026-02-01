@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>📚 Issue Book</h2>
+
+<!-- SEARCH BAR -->
+<form method="POST">
+    <input type="text" name="username" placeholder="Enter Username" required>
+    <button name="search">🔍 Search</button>
+</form>
+
+{% if user %}
+<hr>
+
+<div style="display:flex; gap:30px; margin-top:20px;">
+
+    <!-- USER DETAILS -->
+    <div style="width:50%;">
+        <h3>👤 User Details</h3>
+        <p><b>Name:</b> {{ user.username }}</p>
+        <p><b>Roll No:</b> {{ user.roll_no }}</p>
+        <p><b>Department:</b> {{ user.department }}</p>
+        <p><b>Library ID:</b> {{ user.library_id }}</p>
+    </div>
+
+    <!-- ACTIONS -->
+    <div style="width:50%;">
+        <h3>⚙ Actions</h3>
+
+        <form method="POST">
+            <input type="hidden" name="user_id" value="{{ user.id }}">
+            <input type="text" name="book_name" placeholder="Book Name" required>
+            <button name="issue">📕 Issue Book</button>
+        </form>
+
+        <br>
+        <a href="{{ url_for('issue.delete_user_route', user_id=user.id) }}"
+           class="btn btn-danger">🗑 Delete User</a>
+    </div>
+
+</div>
+
+<!-- ✅ PREVIOUSLY ISSUED BOOKS -->
+{% if previous_books %}
+<hr>
+<div style="margin-top:30px;">
+    <h3>📖 Previously Issued Books</h3>
+    <table border="1" width="100%" cellpadding="10" style="border-collapse:collapse;margin-top:15px;">
+        <tr style="background:#1e293b;color:white;">
+            <th>Book Name</th>
+            <th>Issue Date</th>
+            <th>Return Date</th>
+        </tr>
+        {% for book in previous_books %}
+        <tr align="center">
+            <td>{{ book.book_name }}</td>
+            <td>{{ book.issue_date }}</td>
+            <td>{{ book.return_date }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+{% endif %}
+
+{% if issued %}
+<hr>
+<h3>✅ Issued Book Details</h3>
+<p><b>Book:</b> {{ issued.book_name }}</p>
+<p><b>Issue Date:</b> {{ issued.issue_date }}</p>
+<p><b>Return Date:</b> {{ issued.return_date }}</p>
+{% endif %}
+
+{% endblock %}

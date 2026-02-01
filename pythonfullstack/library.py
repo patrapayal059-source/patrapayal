@@ -1,5 +1,4 @@
 
-# APP+ROUTET
 # pythonfullstack/library.py
 
 from flask import Flask, render_template
@@ -8,6 +7,7 @@ from flask import Flask, render_template
 from controllers.books_controller import books_bp
 from controllers.user_controller import users_bp
 from controllers.report_controller import report_bp
+from controllers.issue_controller import issue_bp
 
 # ================== CREATE APP FIRST ==================
 app = Flask(__name__)
@@ -15,10 +15,11 @@ app = Flask(__name__)
 # ================== CONFIG ==================
 app.secret_key = "super-secret-key"   # required for flash messages
 
-# ================== REGISTER BLUEPRINTS ==================
+# ================= REGISTER BLUEPRINTS =================
 app.register_blueprint(books_bp)
 app.register_blueprint(users_bp)
 app.register_blueprint(report_bp)
+app.register_blueprint(issue_bp)
 
 # ================== HOME ROUTE ==================
 @app.route("/")
@@ -27,4 +28,4 @@ def home():
 
 # ================== RUN APP ==================
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

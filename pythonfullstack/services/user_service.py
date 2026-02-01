@@ -1,7 +1,25 @@
 import sqlite3
 
 DB = "pythonfullstack/database/library.db"
+from database.database import get_db
+def search_user_by_name(username):
+    db = get_db()
+    cur = db.cursor()
+    cur.execute(
+        "SELECT * FROM users WHERE LOWER(username) = LOWER(?)",
+        (username,)
+    )
+    user = cur.fetchone()
+    db.close()
+    return user
 
+
+def delete_user(user_id):
+    db = get_db()
+    cur = db.cursor()
+    cur.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    db.commit()
+    db.close()
 
 def add_user(username, rollno, department):
     conn = sqlite3.connect(DB)

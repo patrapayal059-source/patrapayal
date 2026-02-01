@@ -1,29 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="home-wrapper">
-    <div class="home-container">
-
-        <!-- Hero Image -->
-        <div class="hero-section">
-            <img src="{{ url_for('static', filename='images/library-hero.png') }}"
-                 alt="Library Illustration"
-                 class="hero-image">
+<div class="lms-home-wrapper">
+    <div class="lms-home-container">
+        
+        <!-- Left Side - Image -->
+        <div class="lms-left-section">
+           <img src="{{ url_for('static', filename='image/Library Management System.jpg') }}" 
+     alt="Library Management System" 
+     class="lms-hero-image">
         </div>
 
-        <!-- Text Content -->
-        <h1>Library Management System</h1>
-        <p>Welcome to the Library! Manage your book collection easily.</p>
-
-     <!-- Secondary Buttons -->
-        <div class="button-group">
-            <a href="{{ url_for('books.books') }}" class="btn secondary-btn">
-                View Books
-            </a>
-
-            <a href="{{ url_for('users.profile') }}" class="btn outline-btn">
-                User Profiles
-            </a>
+        <!-- Right Side - Text Content -->
+        <div class="lms-right-section">
+            <div class="lms-content">
+                <h1 class="lms-title">LMS</h1>
+                <h2 class="lms-subtitle">Library<br>Management<br>System</h2>
+                <p class="lms-description">Manage your books, users, and lending system efficiently with our modern library management platform.</p>
+            </div>
         </div>
 
     </div>

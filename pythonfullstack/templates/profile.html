@@ -1,165 +1,90 @@
 {% extends "base.html" %}
 {% block content %}
+
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
-    <div style="width: 70%; max-width: 800px; margin: 20px auto;">
+    <div style="width:70%;margin:20px auto;">
       {% for category, message in messages %}
-        <div class="flash-message {{ category }}">
-          {{ message }}
-        </div>
+        <div class="flash-message {{ category }}">{{ message }}</div>
       {% endfor %}
     </div>
   {% endif %}
 {% endwith %}
 
-
-
 <div class="profile-wrapper">
 
-    <!-- ================= ADD USER ================= -->
-    <div style="width: 70%; max-width: 800px;">
-        <h2 style="text-align: center; color: #1e293b; margin-bottom: 20px;">➕ Add New User</h2>
-        <div class="form-box">
-            <form method="POST" action="{{ url_for('users.add_user') }}">
-                <input type="text" name="username" placeholder="Username" required>
-                <input type="text" name="roll_no" placeholder="Roll No" required>
-                <input type="text" name="department" placeholder="Department" required>
-                <button type="submit">💾 Save User</button>
-            </form>
-        </div>
-    </div>
+<!-- ================= ADD USER ================= -->
+<div style="width:70%;margin:auto;">
+  <h2 style="text-align:center;">➕ Add New User</h2>
 
-    <hr style="width: 70%; margin: 30px auto; border: 1px solid #e5e7eb;">
-
-    <!-- ================= SEARCH USER ================= -->
-    <div style="width: 70%; max-width: 800px;">
-        <h2 style="text-align: center; color: #1e293b; margin-bottom: 20px;">🔍 Search User</h2>
-        <div class="form-box">
-            <form method="GET" action="{{ url_for('users.search_user') }}">
-                <input type="text" name="username" placeholder="Enter username to search" required>
-                <button type="submit">🔎 Search</button>
-            </form>
-        </div>
-    </div>
-    <hr>
-
-<h3 style="margin-top:30px;">📋 Saved Users</h3>
-
-{% if users %}
-<table class="styled-table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Roll No</th>
-            <th>Department</th>
-            <th>Library ID</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for u in users %}
-        <tr>
-            <td>{{ u[1] }}</td>
-            <td>{{ u[2] }}</td>
-            <td>{{ u[3] }}</td>
-            <td>{{ u[4] }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>No users added yet.</p>
-{% endif %}
-
-
-    <!-- ================= USER DETAILS ================= -->
-    {% if user %}
-    <hr style="width: 70%; margin: 30px auto; border: 1px solid #e5e7eb;">
-
-    <div class="user-card">
-        <h2 style="color: #1e293b; border-bottom: 3px solid #38bdf8; padding-bottom: 10px;">
-            📌 User Details
-        </h2>
-
-        <div style="margin: 20px 0;">
-            <p><strong style="color: #1e293b;">Name:</strong> 
-               <span style="color: #475569;">{{ user["username"] }}</span></p>
-            <p><strong style="color: #1e293b;">Roll No:</strong> 
-               <span style="color: #475569;">{{ user["roll_no"] }}</span></p>
-            <p><strong style="color: #1e293b;">Department:</strong> 
-               <span style="color: #475569;">{{ user["department"] }}</span></p>
-            <p><strong style="color: #1e293b;">Library ID:</strong> 
-               <span style="color: #475569;">{{ user["library_id"] }}</span></p>
-        </div>
-
-        <!-- ISSUE BOOK -->
-        <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin-top: 25px;">
-            <h3 style="color: #1e293b; margin-top: 0;">📘 Issue Book to User</h3>
-            <form method="POST"
-                  action="{{ url_for('users.issue_book', user_id=user['id']) }}"
-                  class="form-inline">
-                <input type="text" 
-                       name="book_name" 
-                       placeholder="Enter book name" 
-                       required
-                       style="padding: 10px; border: 2px solid #cbd5e1; 
-                              border-radius: 8px; outline: none;">
-                <button type="submit" class="btn-primary" style="white-space: nowrap;">
-                    📤 Issue Book
-                </button>
-            </form>
-        </div>
-
-        <!-- DELETE USER -->
-        <form method="POST"
-              action="{{ url_for('users.delete_user', user_id=user['id']) }}"
-              onsubmit="return confirm('Are you sure you want to delete this user?');"
-              style="margin-top: 20px;">
-            <button type="submit" class="btn-danger" style="width: 100%;">
-                🗑️ Delete User
-            </button>
-        </form>
-    </div>
-
-    <!-- ================= ISSUED BOOKS ================= -->
-    {% if issued_books %}
-    <div class="issued-card">
-        <h3 style="color: #1e293b; border-bottom: 3px solid #38bdf8; padding-bottom: 10px;">
-            📚 Issued Books ({{ issued_books|length }})
-        </h3>
-        
-        <table class="styled-table">
-            <thead>
-                <tr>
-                    <th style="text-align: left;">Book Name</th>
-                    <th>Issue Date</th>
-                    <th>Return Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for book in issued_books %}
-                <tr>
-                    <td style="text-align: left; font-weight: 600; color: #1e293b;">
-                        {{ book["book_name"] }}
-                    </td>
-                    <td>{{ book["issue_date"] }}</td>
-                    <td style="color: #ef4444; font-weight: 600;">
-                        {{ book["return_date"] }}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <div style="width: 70%; background: white; padding: 30px; border-radius: 12px; 
-                box-shadow: 0 4px 15px rgba(0,0,0,0.08); text-align: center;">
-        <div style="font-size: 48px; margin-bottom: 15px;">📭</div>
-        <p style="color: #94a3b8; font-size: 16px;">No books issued to this user yet</p>
-    </div>
-    {% endif %}
-
-    {% endif %}
-
+  <div class="form-box">
+    <form method="POST" action="{{ url_for('users.add_user') }}">
+      <input type="text" name="username" placeholder="Username" required>
+      <input type="text" name="roll_no" placeholder="Roll No" required>
+      <input type="text" name="department" placeholder="Department" required>
+      <button type="submit">💾 Save User</button>
+    </form>
+  </div>
 </div>
 
+<!-- ================= SAVED USERS TABLE ================= -->
+{% if users %}
+<div style="width:90%;margin:40px auto;">
+  <h2 style="text-align:center;">👥 Saved Users</h2>
+
+  <table border="1" width="100%" cellpadding="10" style="border-collapse:collapse;">
+    <tr style="background:#1e293b;color:white;">
+      <th>Username</th>
+      <th>Roll No</th>
+      <th>Department</th>
+      <th>Issue Book</th>
+      <th>Return Book</th>
+    </tr>
+
+    {% set processed_users = [] %}
+    {% for user in users %}
+      {% if user.username not in processed_users %}
+        {% set _ = processed_users.append(user.username) %}
+        <tr align="center">
+          <td>{{ user.username }}</td>
+          <td>{{ user.roll_no }}</td>
+          <td>{{ user.department }}</td>
+
+          <!-- ISSUE DATE COLUMN -->
+          <td>
+            {% if user.issue_date %}
+              <div style="margin-bottom:5px;">
+                <strong>{{ user.issue_date }}</strong>
+              </div>
+              <form method="GET" action="{{ url_for('issue.issue_page') }}" style="display:inline;">
+                <input type="hidden" name="username" value="{{ user.username }}">
+                <button style="background:#22c55e;color:white;padding:5px 10px;">Issue</button>
+              </form>
+            {% else %}
+              <form method="GET" action="{{ url_for('issue.issue_page') }}">
+                <input type="hidden" name="username" value="{{ user.username }}">
+                <button style="background:#22c55e;color:white;padding:5px 10px;">Issue</button>
+              </form>
+            {% endif %}
+          </td>
+
+          <!-- RETURN DATE COLUMN -->
+          <td>
+            {% if user.return_date %}
+              <div style="margin-bottom:5px;">
+                <strong>{{ user.return_date }}</strong>
+              </div>
+              <button style="background:#f97316;color:white;padding:5px 10px;">Return</button>
+            {% else %}
+              <button disabled style="background:#ccc;color:#666;padding:5px 10px;">Return</button>
+            {% endif %}
+          </td>
+        </tr>
+      {% endif %}
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+</div>
 {% endblock %}

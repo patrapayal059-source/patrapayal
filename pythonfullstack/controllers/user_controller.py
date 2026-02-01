@@ -1,29 +1,35 @@
-# pythonfullstack/controllers/user_controller.py
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from database.database import get_db
 
 users_bp = Blueprint("users", __name__, url_prefix="/users")
 LIBRARY_ID = "LIB-2026"
 
-
-# ============ PROFILE ============
+# ================= PROFILE =================
 @users_bp.route("/", methods=["GET"])
 def profile():
     db = get_db()
     cur = db.cursor()
 
-    cur.execute("SELECT id, username, roll_no, department, library_id FROM users")
-    users = cur.fetchall()
+    # Get all users with their most recent issued book (if any)
+    cur.execute("""
+        SELECT 
+            users.id,
+            users.username,
+            users.roll_no,
+            users.department,
+            issued_books.book_name,
+            issued_books.issue_date,
+            issued_books.return_date
+        FROM users
+        LEFT JOIN issued_books
+        ON users.id = issued_books.user_id
+        ORDER BY users.id, issued_books.issue_date DESC
+    """)
 
+    users = cur.fetchall()
     db.close()
 
-    return render_template(
-        "profile.html",
-        user=None,
-        issued_books=[],
-        users=users
-    )
-
+    return render_template("profile.html", users=users)
 
 
 # ============ ADD USER ============
@@ -44,45 +50,8 @@ def add_user():
     db.commit()
     db.close()
 
+    flash("✅ User saved successfully", "success")
     return redirect(url_for("users.profile"))
-
-
-# ============ SEARCH USER ============
-@users_bp.route("/search", methods=["GET"])
-def search_user():
-    username = request.args.get("username")
-
-    user = None
-    issued_books = []
-
-    if username:
-        db = get_db()
-        cur = db.cursor()
-
-        # get user
-        cur.execute(
-            "SELECT * FROM users WHERE LOWER(username) = LOWER(?)",
-            (username,)
-        )
-        user = cur.fetchone()
-
-        if user:
-            # get issued books (NO book_id)
-            cur.execute("""
-                SELECT book_name, issue_date, return_date
-                FROM issued_books
-                WHERE user_id = ?
-            """, (user["id"],))
-
-            issued_books = cur.fetchall()
-
-        db.close()
-
-    return render_template(
-        "profile.html",
-        user=user,
-        issued_books=issued_books
-    )
 
 
 # ============ ISSUE BOOK ============
@@ -91,22 +60,22 @@ def issue_book(user_id):
     book_name = request.form.get("book_name", "").strip()
 
     if not book_name:
-        flash("Please enter a book name", "danger")
+        flash("❌ Please enter a book name", "danger")
         return redirect(url_for("users.profile"))
 
     db = get_db()
     cur = db.cursor()
 
-    # check user exists
+    # check user
     cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
     user = cur.fetchone()
 
     if not user:
         db.close()
-        flash("User not found", "danger")
+        flash("❌ User not found", "danger")
         return redirect(url_for("users.profile"))
 
-    # check book exists in library
+    # check book exists
     cur.execute(
         "SELECT id FROM books WHERE LOWER(book_name) = LOWER(?)",
         (book_name,)
@@ -115,13 +84,13 @@ def issue_book(user_id):
 
     if not book:
         db.close()
-        flash("❌ This book is not present in the library", "danger")
+        flash("❌ This book is not present in library", "danger")
         return redirect(url_for("users.profile"))
 
-    # issue book (NO book_id)
+    # issue book (current date + 10 days return)
     cur.execute("""
         INSERT INTO issued_books (user_id, book_name, issue_date, return_date)
-        VALUES (?, ?, DATE('now'), DATE('now', '+14 day'))
+        VALUES (?, ?, DATE('now'), DATE('now', '+10 day'))
     """, (user_id, book_name))
 
     db.commit()
@@ -143,4 +112,5 @@ def delete_user(user_id):
     db.commit()
     db.close()
 
+    flash("🗑 User deleted successfully", "success")
     return redirect(url_for("users.profile"))
