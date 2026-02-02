@@ -3,31 +3,15 @@
 
 <div class="lms-home-wrapper">
     <div class="lms-home-container">
-        
-        <!-- Left Side - Image -->
-        <div class="lms-left-section">
-           <img src="{{ url_for('static', filename='image/Library Management System.jpg') }}" 
-     alt="Library Management System" 
-     class="lms-hero-image">
-        </div>
-
-        <!-- Right Side - Text Content -->
-        <div class="lms-right-section">
-            <div class="lms-content">
+        <!-- Hero Section with Image -->
+        <div class="hero-image-section">
+            <img src="{{ url_for('static', filename='images/library-hero.jpg') }}" alt="Library">
+            <div class="hero-overlay">
                 <h1 class="lms-title">LMS</h1>
-                <h2 class="lms-subtitle">Library<br>Management<br>System</h2>
-                <p class="lms-description">Manage your books, users, and lending system efficiently with our modern library management platform.</p>
+                <h2 class="lms-subtitle">Library Management System</h2>
             </div>
         </div>
 
-    </div>
-</div>
+       
 
 {% endblock %}
-
-
-
-
-
-
-

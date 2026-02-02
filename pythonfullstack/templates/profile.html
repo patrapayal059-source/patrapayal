@@ -1,90 +1,68 @@
 {% extends "base.html" %}
 {% block content %}
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div style="width:70%;margin:20px auto;">
-      {% for category, message in messages %}
-        <div class="flash-message {{ category }}">{{ message }}</div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
+<h2 class="page-title">Users List</h2>
 
-<div class="profile-wrapper">
+<!-- ================= ADD USER FORM ================= -->
+<div class="add-user-container">
+    <h3>➕ Add User</h3>
 
-<!-- ================= ADD USER ================= -->
-<div style="width:70%;margin:auto;">
-  <h2 style="text-align:center;">➕ Add New User</h2>
+    <form method="post" action="{{ url_for('users.add_user') }}">
+        <label>Username</label>
+        <input type="text" name="username" required>
 
-  <div class="form-box">
-    <form method="POST" action="{{ url_for('users.add_user') }}">
-      <input type="text" name="username" placeholder="Username" required>
-      <input type="text" name="roll_no" placeholder="Roll No" required>
-      <input type="text" name="department" placeholder="Department" required>
-      <button type="submit">💾 Save User</button>
+        <label>Roll No</label>
+        <input type="text" name="roll_no" required>
+
+        <label>Department</label>
+        <input type="text" name="department" required>
+
+        <button type="submit">Add User</button>
     </form>
-  </div>
 </div>
 
-<!-- ================= SAVED USERS TABLE ================= -->
-{% if users %}
-<div style="width:90%;margin:40px auto;">
-  <h2 style="text-align:center;">👥 Saved Users</h2>
-
-  <table border="1" width="100%" cellpadding="10" style="border-collapse:collapse;">
-    <tr style="background:#1e293b;color:white;">
-      <th>Username</th>
-      <th>Roll No</th>
-      <th>Department</th>
-      <th>Issue Book</th>
-      <th>Return Book</th>
-    </tr>
-
-    {% set processed_users = [] %}
-    {% for user in users %}
-      {% if user.username not in processed_users %}
-        {% set _ = processed_users.append(user.username) %}
-        <tr align="center">
-          <td>{{ user.username }}</td>
-          <td>{{ user.roll_no }}</td>
-          <td>{{ user.department }}</td>
-
-          <!-- ISSUE DATE COLUMN -->
-          <td>
-            {% if user.issue_date %}
-              <div style="margin-bottom:5px;">
-                <strong>{{ user.issue_date }}</strong>
-              </div>
-              <form method="GET" action="{{ url_for('issue.issue_page') }}" style="display:inline;">
-                <input type="hidden" name="username" value="{{ user.username }}">
-                <button style="background:#22c55e;color:white;padding:5px 10px;">Issue</button>
-              </form>
-            {% else %}
-              <form method="GET" action="{{ url_for('issue.issue_page') }}">
-                <input type="hidden" name="username" value="{{ user.username }}">
-                <button style="background:#22c55e;color:white;padding:5px 10px;">Issue</button>
-              </form>
-            {% endif %}
-          </td>
-
-          <!-- RETURN DATE COLUMN -->
-          <td>
-            {% if user.return_date %}
-              <div style="margin-bottom:5px;">
-                <strong>{{ user.return_date }}</strong>
-              </div>
-              <button style="background:#f97316;color:white;padding:5px 10px;">Return</button>
-            {% else %}
-              <button disabled style="background:#ccc;color:#666;padding:5px 10px;">Return</button>
-            {% endif %}
-          </td>
+<!-- ================= USERS TABLE ================= -->
+<table class="users-table">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Roll No</th>
+            <th>Department</th>
+            <th>Issue</th>
+            <th>Delete User</th>
         </tr>
-      {% endif %}
-    {% endfor %}
-  </table>
-</div>
-{% endif %}
+    </thead>
 
-</div>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user[1] }}</td>
+            <td>{{ user[2] }}</td>
+            <td>{{ user[3] }}</td>
+
+            <!-- ISSUE COLUMN -->
+            <td>
+                <form method="get" action="{{ url_for('books.issued_books') }}">
+                    <input type="hidden" name="user_id" value="{{ user[0] }}">
+                    <button type="submit" 
+                        {% if user[5] and not user[6] %}disabled{% endif %}>
+                        Issue
+                    </button>
+                </form>
+            </td>
+
+            <!-- DELETE USER -->
+            <td>
+                <form method="post" action="{{ url_for('users.delete_user', user_id=user[0]) }}"
+                      onsubmit="return confirm('Are you sure you want to delete this user?');">
+                    <button type="submit" style="background-color:#d9534f; color:white;">
+                        Delete
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 {% endblock %}

@@ -114,3 +114,67 @@ def book_detail(category):
         category_books = []
     
     return render_template("book_detail.html", category=category, books=category_books)
+
+@books_bp.route("/issued-books", methods=["GET", "POST"])
+def issued_books():
+    previous_books = []
+    issued = None
+    user = None
+
+    db = get_db()
+    cur = db.cursor()
+
+    # Get all users for dropdown / display
+    cur.execute("SELECT id, username, roll_no, department, library_id FROM users")
+    users = cur.fetchall()
+
+    if request.method == "POST":
+        # ===== ISSUE BOOK =====
+        if "issue" in request.form:   # Issue book button
+            user_id = request.form.get("user_id")
+            book_name = request.form.get("book_name")
+
+            if not user_id or not book_name:
+                flash("User or Book is missing!", "danger")
+            else:
+                # Prevent double issue
+                cur.execute(
+                    "SELECT id FROM issued_books WHERE user_id=? AND return_date IS NULL",
+                    (user_id,)
+                )
+                if cur.fetchone():
+                    flash("❌ User already has an issued book", "danger")
+                else:
+                    cur.execute(
+                        "INSERT INTO issued_books (user_id, book_name, issue_date) VALUES (?, ?, DATE('now'))",
+                        (user_id, book_name)
+                    )
+                    db.commit()
+                    flash("✅ Book issued successfully", "success")
+
+        # ===== SEARCH USER =====
+        elif "search" in request.form:  # Search button
+            username = request.form.get("username")
+            cur.execute(
+                "SELECT * FROM users WHERE username LIKE ?",
+                (f"%{username}%",)
+            )
+            user = cur.fetchone()
+
+    # ===== GET PREVIOUSLY ISSUED BOOKS =====
+    if user:
+        cur.execute(
+            "SELECT * FROM issued_books WHERE user_id=? ORDER BY issue_date DESC",
+            (user["id"],)
+        )
+        previous_books = cur.fetchall()
+
+    db.close()
+
+    return render_template(
+        "issue_book.html",
+        users=users,
+        user=user,
+        previous_books=previous_books,
+        issued=issued
+    )

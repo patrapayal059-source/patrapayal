@@ -4,7 +4,7 @@
 <h2>📚 Issue Book</h2>
 
 <!-- SEARCH BAR -->
-<form method="POST">
+<form method="POST" class="search-bar">
     <input type="text" name="username" placeholder="Enter Username" required>
     <button name="search">🔍 Search</button>
 </form>
@@ -12,10 +12,10 @@
 {% if user %}
 <hr>
 
-<div style="display:flex; gap:30px; margin-top:20px;">
+<div class="issue-page-wrapper">
 
     <!-- USER DETAILS -->
-    <div style="width:50%;">
+    <div class="issue-user-box">
         <h3>👤 User Details</h3>
         <p><b>Name:</b> {{ user.username }}</p>
         <p><b>Roll No:</b> {{ user.roll_no }}</p>
@@ -24,7 +24,7 @@
     </div>
 
     <!-- ACTIONS -->
-    <div style="width:50%;">
+    <div class="issue-action-box">
         <h3>⚙ Actions</h3>
 
         <form method="POST">
@@ -35,41 +35,61 @@
 
         <br>
         <a href="{{ url_for('issue.delete_user_route', user_id=user.id) }}"
-           class="btn btn-danger">🗑 Delete User</a>
+           class="delete-link">🗑 Delete User</a>
     </div>
 
 </div>
 
-<!-- ✅ PREVIOUSLY ISSUED BOOKS -->
+<!-- ================= PREVIOUSLY ISSUED BOOKS ================= -->
 {% if previous_books %}
 <hr>
-<div style="margin-top:30px;">
-    <h3>📖 Previously Issued Books</h3>
-    <table border="1" width="100%" cellpadding="10" style="border-collapse:collapse;margin-top:15px;">
-        <tr style="background:#1e293b;color:white;">
+
+<h3>📖 Previously Issued Books</h3>
+
+<table class="users-table">
+    <thead>
+        <tr>
             <th>Book Name</th>
             <th>Issue Date</th>
             <th>Return Date</th>
         </tr>
+    </thead>
+    <tbody>
         {% for book in previous_books %}
-        <tr align="center">
+        <tr>
             <td>{{ book.book_name }}</td>
             <td>{{ book.issue_date }}</td>
             <td>{{ book.return_date }}</td>
         </tr>
         {% endfor %}
-    </table>
-</div>
+    </tbody>
+</table>
 {% endif %}
 
 {% endif %}
 
+<!-- ================= CURRENT ISSUED BOOK ================= -->
 {% if issued %}
 <hr>
+
 <h3>✅ Issued Book Details</h3>
-<p><b>Book:</b> {{ issued.book_name }}</p>
-<p><b>Issue Date:</b> {{ issued.issue_date }}</p>
-<p><b>Return Date:</b> {{ issued.return_date }}</p>
+
+<table class="users-table">
+    <thead>
+        <tr>
+            <th>Book</th>
+            <th>Issue Date</th>
+            <th>Return Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{ issued.book_name }}</td>
+            <td>{{ issued.issue_date }}</td>
+            <td>{{ issued.return_date }}</td>
+        </tr>
+    </tbody>
+</table>
 {% endif %}
 
 {% endblock %}

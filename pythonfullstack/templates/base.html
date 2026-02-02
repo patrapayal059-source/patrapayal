@@ -1,2 +1,55 @@
-c
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
 
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <div class="nav-brand">📚 LMS</div>
+    <div class="nav-links">
+        <a href="/" class="nav-link">
+            <span class="nav-icon">🏠</span>Home
+        </a>
+        <a href="{{ url_for('books.books') }}" class="nav-link">
+            <span class="nav-icon">📖</span>Books
+        </a>
+        <a href="{{ url_for('books.saved_books') }}" class="nav-link">
+            <span class="nav-icon">💾</span>Saved Books
+        </a>
+        <a href="{{ url_for('users.profile') }}" class="nav-link">
+            <span class="nav-icon">👤</span>Profile
+        </a>
+        <a href="{{ url_for('books.issued_books') }}" class="nav-link">
+            <span class="nav-icon">📋</span>Issued Books
+        </a>
+        <a href="{{ url_for('report.report') }}" class="nav-link">
+            <span class="nav-icon">📊</span>Report
+        </a>
+    </div>
+</nav>
+
+<!-- Main Content -->
+{% block content %}{% endblock %}
+
+<script>
+    // Add active state to current page
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        navLinks.forEach(link => {
+            if (link.getAttribute('href') === currentPath || 
+                (currentPath !== '/' && currentPath.includes(link.getAttribute('href')) && link.getAttribute('href') !== '/')) {
+                link.classList.add('active');
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
