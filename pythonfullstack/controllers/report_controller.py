@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request
 from database.database import get_db
+from datetime import datetime, timedelta
 
 report_bp = Blueprint("report", __name__, url_prefix="/report")
 
@@ -8,13 +9,13 @@ def report():
     search_date = request.args.get("date")
     search_user = request.args.get("username")
 
-    total_issued = 0
     issued_books = []
+    total_issued = 0
 
     db = get_db()
     cur = db.cursor()
 
-    # fetch all users for dropdown
+    # Users for dropdown
     cur.execute("SELECT username FROM users")
     users = cur.fetchall()
 
@@ -39,7 +40,20 @@ def report():
             params.append(search_user)
 
         cur.execute(query, params)
-        issued_books = cur.fetchall()
+        rows = cur.fetchall()
+
+        for row in rows:
+            issue_date = datetime.strptime(row["issue_date"], "%Y-%m-%d")
+            expected_return_date = (issue_date + timedelta(days=10)).strftime("%Y-%m-%d")
+
+            issued_books.append({
+                "username": row["username"],
+                "book_name": row["book_name"],
+                "issue_date": row["issue_date"],
+                "expected_return_date": expected_return_date,
+                "actual_return_date": row["return_date"]
+            })
+
         total_issued = len(issued_books)
 
     db.close()

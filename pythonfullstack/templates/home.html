@@ -1,17 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="lms-home-wrapper">
-    <div class="lms-home-container">
-        <!-- Hero Section with Image -->
-        <div class="hero-image-section">
-            <img src="{{ url_for('static', filename='images/library-hero.jpg') }}" alt="Library">
-            <div class="hero-overlay">
-                <h1 class="lms-title">LMS</h1>
-                <h2 class="lms-subtitle">Library Management System</h2>
-            </div>
-        </div>
+<div class="home-page">
 
-       
+    <!-- HERO SECTION -->
+    <section class="hero-section">
+        <img src="{{ url_for('static', filename='images/library-hero.jpg') }}" alt="Library">
+
+        <div class="hero-overlay">
+            <h1 class="home-title">LMS</h1>
+            <h2 class="home-subtitle">Library Management System</h2>
+            <p class="home-tagline">
+                Organize • Issue • Track • Manage Books Effortlessly
+            </p>
+        </div>
+    </section>
+
+</div>
 
 {% endblock %}

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="books-wrapper">
+
+    <!-- HEADER -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+        <h1 class="page-title" style="margin:0;">
+            {% if category == 'Mathematics' %}
+                📐
+            {% elif category == 'Physics' %}
+                ⚛️
+            {% else %}
+                💻
+            {% endif %}
+            {{ category }}
+        </h1>
+
+        <a href="{{ url_for('books.books') }}"
+           style="background:#6c757d;color:white;padding:12px 24px;
+                  border-radius:8px;text-decoration:none;font-weight:600;">
+            ⬅ Back to Categories
+        </a>
+    </div>
+
+    <p style="text-align:center;color:#475569;margin-bottom:40px;font-size:16px;">
+        Select a subcategory to view books
+    </p>
+
+    <!-- SUBCATEGORY GRID -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;">
+
+        {% for subcat in subcategories %}
+
+        <a href="{{ url_for('books.subcategory_books',
+                            category=category,
+                            subcategory=subcat) }}"
+           style="text-decoration:none;">
+
+            <div style="background:white;padding:35px;border-radius:16px;
+                        text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.08);
+                        transition:0.3s;cursor:pointer;
+                        border-left:5px solid
+                        {% if category == 'Mathematics' %}#667eea
+                        {% elif category == 'Physics' %}#f5576c
+                        {% else %}#4facfe
+                        {% endif %};">
+
+                <div style="font-size:52px;margin-bottom:15px;">
+                    {% if subcat == 'Algebra' %}🔢
+                    {% elif subcat == 'Geometry' %}📐
+                    {% elif subcat == 'Optics' %}🔬
+                    {% elif subcat == 'Gravity' %}🌍
+                    {% elif subcat == 'C++' %}⚙️
+                    {% elif subcat == 'C' %}📟
+                    {% elif subcat == 'AI' %}🤖
+                    {% else %}📚
+                    {% endif %}
+                </div>
+
+                <h3 style="color:#1e293b;margin:0;font-size:22px;font-weight:700;">
+                    {{ subcat }}
+                </h3>
+
+                <p style="color:#64748b;margin-top:12px;font-size:14px;">
+                    View Books →
+                </p>
+
+            </div>
+        </a>
+
+        {% endfor %}
+
+    </div>
+</div>
+
+<style>
+.books-wrapper a > div:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+}
+</style>
+
+{% endblock %}

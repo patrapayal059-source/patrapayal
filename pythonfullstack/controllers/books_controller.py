@@ -1,41 +1,92 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from services.book_service import add_book, get_all_books, search_books, delete_book, get_books_by_category ,get_db
+from services.book_service import add_book, get_all_books, search_books, delete_book, get_books_by_category, get_db
 
 books_bp = Blueprint("books", __name__, url_prefix="/books")
 
-# Categories list
-CATEGORIES = ["Python", "AI", "ML", "C++", "C"]
-@books_bp.route("/category/<category>")
-def category_books(category):
-    if category not in CATEGORIES:
-        flash("Unknown category", "error")
-        return redirect(url_for("books.books"))
-
-    conn = get_db()
-    cursor = conn.cursor()
-
-    cursor.execute(
-        "SELECT * FROM books WHERE category = ? ORDER BY date_added DESC",
-        (category,)
-    )
-    books = cursor.fetchall()
-    conn.close()
-
-    return render_template(
-        "book_detail.html",
-        category=category,
-        books=books
-    )
-
+# Main Categories and their Subcategories
+CATEGORIES = {
+    "Mathematics": ["Algebra", "Geometry"],
+    "Physics": ["Optics", "Gravity"],
+    "Computer Science": ["C++", "C", "AI"]
+}
 
 @books_bp.route("/")
 def books():
-    """Main books page showing all categories and add book form"""
+    """Main books page showing all categories"""
     return render_template("books.html", categories=CATEGORIES)
+
+@books_bp.route("/category/<category>")
+def category_view(category):
+    db = get_db()
+    cur = db.cursor()
+
+    cur.execute("""
+        SELECT DISTINCT subcategory
+        FROM books
+        WHERE category = ?
+    """, (category,))
+
+    subcategories = [row[0] for row in cur.fetchall()]
+
+    return render_template(
+        "category_view.html",
+        category=category,
+        subcategories=subcategories
+    )
+
+@books_bp.route("/category/<category>/<subcategory>")
+def subcategory_books(category, subcategory):
+    """Display books for a specific subcategory"""
+    db = get_db()
+    cur = db.cursor()
+    
+    cur.execute("""
+        SELECT id, book_name, author, isbn, date_added
+        FROM books
+        WHERE category = ? AND subcategory = ?
+        ORDER BY id DESC
+    """, (category, subcategory))
+    
+    rows = cur.fetchall()
+    db.close()
+    
+    # Convert rows to dictionaries for easier template access
+    books = []
+    for row in rows:
+        books.append({
+            'id': row[0],
+            'book_name': row[1],
+            'author': row[2],
+            'isbn': row[3],
+            'date_added': row[4]
+        })
+    
+    return render_template(
+        "subcategory_books.html",
+        category=category,
+        subcategory=subcategory,
+        books=books
+    )
+
+@books_bp.route("/get-subcategories/<category>")
+def get_subcategories(category):
+    db = get_db()
+    cur = db.cursor()
+
+    cur.execute("""
+        SELECT DISTINCT subcategory 
+        FROM books 
+        WHERE category = ?
+    """, (category,))
+
+    subcategories = [row[0] for row in cur.fetchall()]
+    return {"subcategories": subcategories}
+
 
 @books_bp.route("/add", methods=["POST"])
 def add_book_route():
     category = request.form.get("category")
+    subcategory = request.form.get("subcategory")
     book_name = request.form.get("book_name")
     author = request.form.get("author")
     isbn = request.form.get("isbn")
@@ -44,9 +95,9 @@ def add_book_route():
     cursor = conn.cursor()
 
     cursor.execute("""
-        INSERT INTO books (category, book_name, author, isbn, date_added)
-        VALUES (?, ?, ?, ?, DATE('now'))
-    """, (category, book_name, author, isbn))
+        INSERT INTO books (category, subcategory, book_name, author, isbn, date_added)
+        VALUES (?, ?, ?, ?, ?, DATE('now'))
+    """, (category, subcategory, book_name, author, isbn))
 
     conn.commit()
     conn.close()
@@ -67,26 +118,27 @@ def saved_books():
             WHERE book_name LIKE ?
                OR author LIKE ?
                OR category LIKE ?
-        """, (f"%{search}%", f"%{search}%", f"%{search}%"))
+               OR subcategory LIKE ?
+        """, (f"%{search}%", f"%{search}%", f"%{search}%", f"%{search}%"))
     else:
         cursor.execute("SELECT * FROM books")
 
     rows = cursor.fetchall()
     conn.close()
 
-    # Group by category
+    # Group by category and subcategory
     books_by_category = {}
     for row in rows:
         cat = row["category"]
-        books_by_category.setdefault(cat, []).append(row)
+        subcat = row["subcategory"]
+        key = f"{cat} - {subcat}"
+        books_by_category.setdefault(key, []).append(row)
 
     return render_template(
         "saved_books.html",
         books_by_category=books_by_category,
         search_query=search
     )
-
-
 
 @books_bp.route("/delete/<int:book_id>", methods=["POST"])
 def delete_book_route(book_id):
@@ -98,22 +150,6 @@ def delete_book_route(book_id):
         flash(f"Error deleting book: {str(e)}", "error")
     
     return redirect(url_for("books.saved_books"))
-
-@books_bp.route("/<category>")
-def book_detail(category):
-    """View books for a specific category (filtered view)"""
-    if category not in CATEGORIES:
-        flash("Unknown category", "error")
-        return redirect(url_for("books.books"))
-    
-    try:
-        # Get books filtered by category
-        category_books = get_books_by_category(category)
-    except Exception as e:
-        flash(f"Error loading books: {str(e)}", "error")
-        category_books = []
-    
-    return render_template("book_detail.html", category=category, books=category_books)
 
 @books_bp.route("/issued-books", methods=["GET", "POST"])
 def issued_books():
@@ -130,7 +166,7 @@ def issued_books():
 
     if request.method == "POST":
         # ===== ISSUE BOOK =====
-        if "issue" in request.form:   # Issue book button
+        if "issue" in request.form:
             user_id = request.form.get("user_id")
             book_name = request.form.get("book_name")
 
@@ -153,7 +189,7 @@ def issued_books():
                     flash("✅ Book issued successfully", "success")
 
         # ===== SEARCH USER =====
-        elif "search" in request.form:  # Search button
+        elif "search" in request.form:
             username = request.form.get("username")
             cur.execute(
                 "SELECT * FROM users WHERE username LIKE ?",

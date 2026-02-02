@@ -93,9 +93,10 @@ def issue_book(user_id):
     if active_issue:
         flash("❌ User already has an issued book", "error")
     else:
+        # Insert issued book with return date 10 days later
         cur.execute("""
-            INSERT INTO issued_books (user_id, book_name, issue_date)
-            VALUES (?, ?, DATE('now'))
+            INSERT INTO issued_books (user_id, book_name, issue_date, return_date)
+            VALUES (?, ?, DATE('now'), DATE('now', '+10 day'))
         """, (user_id, book_name))
 
         db.commit()
@@ -103,7 +104,6 @@ def issue_book(user_id):
 
     db.close()
     return redirect(url_for("users.profile"))
-
 
 # ================= RETURN BOOK =================
 @users_bp.route("/return/<int:user_id>", methods=["POST"])

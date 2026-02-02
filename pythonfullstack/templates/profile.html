@@ -40,16 +40,20 @@
             <td>{{ user[2] }}</td>
             <td>{{ user[3] }}</td>
 
+            
             <!-- ISSUE COLUMN -->
-            <td>
-                <form method="get" action="{{ url_for('books.issued_books') }}">
-                    <input type="hidden" name="user_id" value="{{ user[0] }}">
-                    <button type="submit" 
-                        {% if user[5] and not user[6] %}disabled{% endif %}>
-                        Issue
-                    </button>
-                </form>
-            </td>
+<td>
+    {% if user[5] %}
+        Issue Date: {{ user[5] }} <br>
+        Return Date: {{ user[6] }}
+    {% else %}
+        <form method="post" action="{{ url_for('users.issue_book', user_id=user[0]) }}">
+            <button type="submit">Issue</button>
+        </form>
+    {% endif %}
+</td>
+
+
 
             <!-- DELETE USER -->
             <td>

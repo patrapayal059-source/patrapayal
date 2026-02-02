@@ -1,16 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="container">
-    <h2>📊 Daily Issue Report</h2>
+<div class="report-page">
+
+    <h2 class="report-title">📊 Daily Issue Report</h2>
 
     <!-- Search Form -->
-    <form method="get" style="margin-bottom: 20px; display: flex; gap: 10px;">
-        
-        <!-- Date Search -->
+    <form method="get" class="report-filters">
         <input type="date" name="date" value="{{ search_date }}">
 
-        <!-- Username Search -->
         <select name="username">
             <option value="">Select User</option>
             {% for u in users %}
@@ -25,31 +23,54 @@
     </form>
 
     {% if search_date or search_user %}
-        <p><strong>Date:</strong> {{ search_date }}</p>
-        <p><strong>Total Books Issued:</strong> {{ total_issued }}</p>
+        <div class="report-summary">
+            <span><strong>Date:</strong> {{ search_date or "All" }}</span>
+            <span><strong>Total Books Issued:</strong> {{ total_issued }}</span>
+        </div>
     {% endif %}
 
-    <!-- Report Table -->
     {% if issued_books %}
-        <table border="1" cellpadding="8" cellspacing="0">
-            <tr>
-                <th>User Name</th>
-                <th>Book Name</th>
-                <th>Issue Date</th>
-                <th>Return Date</th>
-            </tr>
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>User Name</th>
+                    <th>Book Name</th>
+                    <th>Issue Date</th>
+                    <th>Return Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
             {% for row in issued_books %}
-            <tr>
-                <td>{{ row['username'] }}</td>
-                <td>{{ row['book_name'] }}</td>
-                <td>{{ row['issue_date'] }}</td>
-                <td>{{ row['return_date'] }}</td>
-            </tr>
+                <tr>
+                    <td>{{ row.username }}</td>
+                    <td>{{ row.book_name }}</td>
+                    <td>{{ row.issue_date }}</td>
+
+                    <td>
+                        {% if row.actual_return_date %}
+                            {{ row.actual_return_date }}
+                        {% else %}
+                            {{ row.expected_return_date }}
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if row.actual_return_date %}
+                            <span class="status returned">✅ Returned</span>
+                        {% else %}
+                            <span class="status issued">⏳ Issued</span>
+                        {% endif %}
+                    </td>
+                </tr>
             {% endfor %}
+            </tbody>
         </table>
     {% elif search_date or search_user %}
-        <p>No records found.</p>
+        <p class="no-data">No records found.</p>
     {% endif %}
+
 </div>
 
 {% endblock %}
