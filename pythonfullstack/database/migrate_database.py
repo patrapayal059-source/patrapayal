@@ -1,12 +1,12 @@
+# migrate_database.py
 import sqlite3
 
 def migrate_database():
     """
     Migrate the books table to support the new category/subcategory structure
     """
- conn = sqlite3.connect("pythonfullstack/database/library.db"
-
-    cursor = conn.cursor()
+  conn = sqlite3.connect("pythonfullstack/database/library.db")
+         cursor = conn.cursor()
     
     # Check if the table exists and get its current structure
     cursor.execute("PRAGMA table_info(books)")
