@@ -1,6 +1,12 @@
 
 # pythonfullstack/library.py
 
+import sys
+import os
+
+# Add the current directory to Python path so imports work correctly
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from flask import Flask, render_template
 
 # import blueprints

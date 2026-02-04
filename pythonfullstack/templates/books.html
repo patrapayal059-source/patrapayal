@@ -8,14 +8,17 @@
         Add books under categories and subcategories, view them later
     </p>
 
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for cat, msg in messages %}
-          <div class="alert {{ cat }}" style="margin-bottom: 20px;">{{ msg }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+    <!-- ================= BOOK FLASH MESSAGES ================= -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+    {% if category == 'book' %}
+      <div class="book-flash">
+        {{ message }}
+      </div>
+    {% endif %}
+  {% endfor %}
+{% endwith %}
+
 
     <!-- Add Book Form -->
     <div style="background: white; padding: 25px; border-radius: 12px; 
@@ -155,28 +158,7 @@
     }
 </style>
 
-<!-- <script>
-// Dynamic subcategory population
-const categoryData = {{ categories|tojson }};
 
-document.getElementById('categorySelect').addEventListener('change', function() {
-    const category = this.value;
-    const subcategorySelect = document.getElementById('subcategorySelect');
-    
-    // Clear existing options
-    subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
-    
-    // Add new options
-    if (category && categoryData[category]) {
-        categoryData[category].forEach(function(subcat) {
-            const option = document.createElement('option');
-            option.value = subcat;
-            option.textContent = subcat;
-            subcategorySelect.appendChild(option);
-        });
-    }
-});
-</script> -->
 <script>
 document.getElementById("categorySelect").addEventListener("change", function () {
     const category = this.value;

@@ -103,7 +103,7 @@ def add_book_route():
     conn.commit()
     conn.close()
 
-    flash("Book saved successfully!", "success")
+    flash("Book saved successfully!", "book")
     return redirect(url_for("books.books"))
 
 @books_bp.route("/saved")
@@ -152,51 +152,51 @@ def delete_book_route(book_id):
     
     return redirect(url_for("books.saved_books"))
 
-@books_bp.route("/issued-books", methods=["GET", "POST"])
-def issued_books():
-    previous_books = []
-    issued = None
-    user = None
+# @books_bp.route("/issued-books", methods=["GET", "POST"])
+# def issued_books():
+#     previous_books = []
+#     issued = None
+#     user = None
 
-    db = get_db()
-    cur = db.cursor()
+#     db = get_db()
+#     cur = db.cursor()
 
-    # Get all users for dropdown / display
-    cur.execute("SELECT id, username, roll_no, department, library_id FROM users")
-    users = cur.fetchall()
+#     # Get all users for dropdown / display
+#     cur.execute("SELECT id, username, roll_no, department, library_id FROM users")
+#     users = cur.fetchall()
 
-    if request.method == "POST":
-        # ===== ISSUE BOOK =====
-        if "issue" in request.form:
-            user_id = request.form.get("user_id")
-            book_name = request.form.get("book_name")
+#     if request.method == "POST":
+#         # ===== ISSUE BOOK =====
+#         if "issue" in request.form:
+#             user_id = request.form.get("user_id")
+#             book_name = request.form.get("book_name")
 
-            if not user_id or not book_name:
-                flash("User or Book is missing!", "danger")
-            else:
-                # Prevent double issue
-                cur.execute(
-                    "SELECT id FROM issued_books WHERE user_id=? AND return_date IS NULL",
-                    (user_id,)
-                )
-                if cur.fetchone():
-                    flash("❌ User already has an issued book", "danger")
-                else:
-                    cur.execute(
-                        "INSERT INTO issued_books (user_id, book_name, issue_date) VALUES (?, ?, DATE('now'))",
-                        (user_id, book_name)
-                    )
-                    db.commit()
-                    flash("✅ Book issued successfully", "success")
+#             if not user_id or not book_name:
+#                 flash("User or Book is missing!", "danger")
+#             else:
+#                 # Prevent double issue
+#                 cur.execute(
+#                     "SELECT id FROM issued_books WHERE user_id=? AND return_date IS NULL",
+#                     (user_id,)
+#                 )
+#                 if cur.fetchone():
+#                     flash("❌ User already has an issued book", "danger")
+#                 else:
+#                     cur.execute(
+#                         "INSERT INTO issued_books (user_id, book_name, issue_date) VALUES (?, ?, DATE('now'))",
+#                         (user_id, book_name)
+#                     )
+#                     db.commit()
+#                     flash("✅ Book issued successfully", "success")
 
-        # ===== SEARCH USER =====
-        elif "search" in request.form:
-            username = request.form.get("username")
-            cur.execute(
-                "SELECT * FROM users WHERE username LIKE ?",
-                (f"%{username}%",)
-            )
-            user = cur.fetchone()
+        # # ===== SEARCH USER =====
+        # elif "search" in request.form:
+        #     username = request.form.get("username")
+        #     cur.execute(
+        #         "SELECT * FROM users WHERE username LIKE ?",
+        #         (f"%{username}%",)
+        #     )
+        #     user = cur.fetchone()
 
     # ===== GET PREVIOUSLY ISSUED BOOKS =====
     if user:

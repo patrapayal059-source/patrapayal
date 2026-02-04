@@ -1,11 +1,10 @@
 services:
   - type: web
-    name: library-management-system
+    name: patrapayal
     env: python
-    buildCommand: "pip install -r requirements.txt && python database/init_db.py"
-    startCommand: "gunicorn library:app"
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.6
-      - key: FLASK_ENV
-        value: production
+    region: oregon
+    plan: free
+    branch: main
+    rootDir: pythonfullstack
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn library:app --bind 0.0.0.0:$PORT

@@ -7,27 +7,24 @@ from datetime import datetime, timedelta
 
 issue_bp = Blueprint("issue", __name__, url_prefix="/issue")
 
+
+# ================= HELPER =================
 def process_books_with_dates(rows):
-    previous_books = []
+    books = []
 
     for row in rows:
-        issue_date_str = row['issue_date']
-
-        # calculate return date (issue + 10 days)
-        issue_date = datetime.strptime(issue_date_str, "%Y-%m-%d")
+        issue_date = datetime.strptime(row["issue_date"], "%Y-%m-%d")
         expected_return_date = (issue_date + timedelta(days=10)).strftime("%Y-%m-%d")
 
-        previous_books.append({
+        books.append({
             "id": row["id"],
             "book_name": row["book_name"],
-            "issue_date": issue_date_str,
+            "issue_date": row["issue_date"],
             "expected_return_date": expected_return_date,
             "actual_return_date": row["return_date"]
         })
 
-    return previous_books
-
-
+    return books
 
 
 # ================= ISSUE BOOK PAGE =================
@@ -47,20 +44,16 @@ def issue_page():
             if not user:
                 flash("❌ User not found", "danger")
             else:
-                # ✅ GET PREVIOUSLY ISSUED BOOKS (ONLY UNRETURNED ONES)
                 db = get_db()
                 cur = db.cursor()
                 cur.execute("""
                     SELECT id, book_name, issue_date, return_date
                     FROM issued_books
-                    WHERE user_id = ? AND return_date IS NULL
+                    WHERE user_id = ?
                     ORDER BY issue_date DESC
-                """, (user['id'],))
-                rows = cur.fetchall()
+                """, (user["id"],))
+                previous_books = process_books_with_dates(cur.fetchall())
                 db.close()
-                
-                # Process books and add expected return dates
-                previous_books = process_books_with_dates(rows)
 
         # 📕 ISSUE BOOK
         elif "issue" in request.form:
@@ -73,77 +66,48 @@ def issue_page():
                 result = issue_book_to_user(user_id, book_name)
 
                 if "error" in result:
-                    flash(f"❌ {result['error']}", "danger")
+                    flash(result["error"], "danger")
                 else:
-                    issued = result
                     flash("✅ Book issued successfully", "success")
-                    
-                    # Reload user and previous books
-                    db = get_db()
-                    cur = db.cursor()
-                    cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
-                    user = cur.fetchone()
-                    
-                    if user:
-                        cur.execute("""
-                            SELECT id, book_name, issue_date, return_date
-                            FROM issued_books
-                            WHERE user_id = ? AND return_date IS NULL
-                            ORDER BY issue_date DESC
-                        """, (user['id'],))
-                        rows = cur.fetchall()
-                        
-                        # Process books and add expected return dates
-                        previous_books = process_books_with_dates(rows)
-                    
-                    db.close()
 
-    # ✅ Handle GET request with username parameter (from profile page)
-    elif request.method == "GET":
-        username = request.args.get("username")
-        if username:
-            user = search_user_by_name(username)
-            if user:
-                # Get previously issued books (only unreturned)
                 db = get_db()
                 cur = db.cursor()
-                cur.execute("""
-                    SELECT id, book_name, issue_date, return_date
-                    FROM issued_books
-                    WHERE user_id = ? AND return_date IS NULL
-                    ORDER BY issue_date DESC
-                """, (user['id'],))
-                rows = cur.fetchall()
+                cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+                user = cur.fetchone()
+
+                if user:
+                    cur.execute("""
+                        SELECT id, book_name, issue_date, return_date
+                        FROM issued_books
+                        WHERE user_id = ?
+                        ORDER BY issue_date DESC
+                    """, (user["id"],))
+                    previous_books = process_books_with_dates(cur.fetchall())
+
                 db.close()
-                
-                # Process books and add expected return dates
-                previous_books = process_books_with_dates(rows)
 
-    return render_template("issue_book.html", user=user, issued=issued, previous_books=previous_books)
+    return render_template(
+        "issue_book.html",
+        user=user,
+        issued=issued,
+        previous_books=previous_books
+    )
 
 
-# ================= ISSUED BOOKS LIST =================
-@issue_bp.route("/issued")
-def issued_books():
+# ================= ISSUED BOOKS LIST (FIXED) =================
+@issue_bp.route("/issued/<int:user_id>")
+def issued_books(user_id):
     db = get_db()
     cur = db.cursor()
 
-    # Only show books that haven't been returned yet
     cur.execute("""
-        SELECT users.username,
-               users.roll_no,
-               users.department,
-               issued_books.book_name,
-               issued_books.issue_date,
-               issued_books.return_date,
-               issued_books.id as issued_id
+        SELECT id, book_name, issue_date, return_date
         FROM issued_books
-        JOIN users ON users.id = issued_books.user_id
-        WHERE issued_books.return_date IS NULL
-        ORDER BY issued_books.issue_date DESC
-    """)
+        WHERE user_id = ?
+        ORDER BY issue_date DESC
+    """, (user_id,))
 
-    issued_list = cur.fetchall()
+    issued_list = process_books_with_dates(cur.fetchall())
     db.close()
 
     return render_template("issued_books.html", issued_list=issued_list)

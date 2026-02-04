@@ -3,6 +3,14 @@
 {% block content %}
 
 <h2 class="page-title">Users List</h2>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for cat, msg in messages %}
+    {% if cat != 'book' %}
+      <div class="flash-message {{ cat }}">{{ msg }}</div>
+    {% endif %}
+  {% endfor %}
+{% endwith %}
+
 
 <!-- ================= ADD USER FORM ================= -->
 <div class="add-user-container">
