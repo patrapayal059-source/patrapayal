@@ -1,5 +1,5 @@
 # books_controller.py 
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from services.book_service import add_book, get_all_books, search_books, delete_book, get_books_by_category, get_db
 
 books_bp = Blueprint("books", __name__, url_prefix="/books")
@@ -141,6 +141,67 @@ def saved_books():
         search_query=search
     )
 
+@books_bp.route("/edit/<int:book_id>", methods=["POST"])
+def edit_book(book_id):
+    """
+    Updates book information via AJAX request
+    Receives JSON data with book_name, author, and isbn
+    
+    Route: POST /books/edit/<book_id>
+    Content-Type: application/json
+    """
+    print(f"Edit route called for book_id: {book_id}")  # Debug log
+    
+    try:
+        # Get JSON data from request
+        data = request.get_json()
+        print(f"Received data: {data}")  # Debug log
+        
+        if not data:
+            return jsonify({"success": False, "error": "No data received"}), 400
+        
+        book_name = data.get("book_name")
+        author = data.get("author")
+        isbn = data.get("isbn")
+
+        # Validate input
+        if not book_name or not author:
+            return jsonify({"success": False, "error": "Book name and author are required"}), 400
+
+        db = get_db()
+        cur = db.cursor()
+
+        # Check if book exists
+        cur.execute("SELECT id FROM books WHERE id = ?", (book_id,))
+        if not cur.fetchone():
+            db.close()
+            return jsonify({"success": False, "error": "Book not found"}), 404
+
+        # Update book in database
+        cur.execute("""
+            UPDATE books
+            SET book_name = ?, author = ?, isbn = ?
+            WHERE id = ?
+        """, (book_name, author, isbn, book_id))
+
+        db.commit()
+        db.close()
+
+        print(f"Book {book_id} updated successfully")  # Debug log
+
+        return jsonify({
+            "success": True,
+            "message": "Book updated successfully"
+        }), 200
+
+    except Exception as e:
+        print(f"Error in edit_book: {str(e)}")  # Debug log
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
 @books_bp.route("/delete/<int:book_id>", methods=["POST"])
 def delete_book_route(book_id):
     """Delete a book from saved books"""
@@ -151,67 +212,3 @@ def delete_book_route(book_id):
         flash(f"Error deleting book: {str(e)}", "error")
     
     return redirect(url_for("books.saved_books"))
-
-# @books_bp.route("/issued-books", methods=["GET", "POST"])
-# def issued_books():
-#     previous_books = []
-#     issued = None
-#     user = None
-
-#     db = get_db()
-#     cur = db.cursor()
-
-#     # Get all users for dropdown / display
-#     cur.execute("SELECT id, username, roll_no, department, library_id FROM users")
-#     users = cur.fetchall()
-
-#     if request.method == "POST":
-#         # ===== ISSUE BOOK =====
-#         if "issue" in request.form:
-#             user_id = request.form.get("user_id")
-#             book_name = request.form.get("book_name")
-
-#             if not user_id or not book_name:
-#                 flash("User or Book is missing!", "danger")
-#             else:
-#                 # Prevent double issue
-#                 cur.execute(
-#                     "SELECT id FROM issued_books WHERE user_id=? AND return_date IS NULL",
-#                     (user_id,)
-#                 )
-#                 if cur.fetchone():
-#                     flash("❌ User already has an issued book", "danger")
-#                 else:
-#                     cur.execute(
-#                         "INSERT INTO issued_books (user_id, book_name, issue_date) VALUES (?, ?, DATE('now'))",
-#                         (user_id, book_name)
-#                     )
-#                     db.commit()
-#                     flash("✅ Book issued successfully", "success")
-
-        # # ===== SEARCH USER =====
-        # elif "search" in request.form:
-        #     username = request.form.get("username")
-        #     cur.execute(
-        #         "SELECT * FROM users WHERE username LIKE ?",
-        #         (f"%{username}%",)
-        #     )
-        #     user = cur.fetchone()
-
-    # ===== GET PREVIOUSLY ISSUED BOOKS =====
-    if user:
-        cur.execute(
-            "SELECT * FROM issued_books WHERE user_id=? ORDER BY issue_date DESC",
-            (user["id"],)
-        )
-        previous_books = cur.fetchall()
-
-    db.close()
-
-    return render_template(
-        "issue_book.html",
-        users=users,
-        user=user,
-        previous_books=previous_books,
-        issued=issued
-    )

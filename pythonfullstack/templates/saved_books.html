@@ -1,9 +1,22 @@
-<!-- saved_books.html -->
 {% extends "base.html" %}
 {% block content %}
 
 <div class="books-wrapper">
     <h1 class="page-title">📚 Saved Books</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="alert {{ cat }}" style="margin-bottom: 20px; padding: 15px; border-radius: 8px; text-align: center;
+               {% if cat == 'success' %}background: #d1fae5; color: #065f46; border-left: 4px solid #10b981;
+               {% elif cat == 'error' %}background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444;
+               {% else %}background: #dbeafe; color: #1e40af; border-left: 4px solid #3b82f6;{% endif %}">
+            {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
 
     <!-- Search Form -->
     <form method="get" style="margin-bottom: 30px;">
@@ -45,36 +58,89 @@
                         <th style="padding: 12px; text-align: left; font-weight: 700; color: #475569;">Author</th>
                         <th style="padding: 12px; text-align: center; font-weight: 700; color: #475569;">ISBN</th>
                         <th style="padding: 12px; text-align: center; font-weight: 700; color: #475569;">Date Added</th>
-                        <th style="padding: 12px; text-align: center; font-weight: 700; color: #475569;">Action</th>
+                        <th style="padding: 12px; text-align: center; font-weight: 700; color: #475569;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                 {% for book in books %}
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <tr id="book-row-{{ book.id }}" style="border-bottom: 1px solid #e5e7eb;">
                         <td style="padding: 12px; text-align: center; font-weight: 600; color: #667eea;">
                             {{ loop.index }}
                         </td>
+                        
+                        <!-- Book Name (Editable) -->
                         <td style="padding: 12px; font-weight: 600; color: #1e293b;">
-                            📖 {{ book.book_name }}
+                            <span class="display-mode" id="bookname-display-{{ book.id }}">
+                                📖 {{ book.book_name }}
+                            </span>
+                            <input type="text" class="edit-mode" id="bookname-edit-{{ book.id }}" 
+                                   value="{{ book.book_name }}" style="display: none; width: 90%; padding: 8px; 
+                                   border: 2px solid #667eea; border-radius: 5px;">
                         </td>
+                        
+                        <!-- Author (Editable) -->
                         <td style="padding: 12px; color: #475569;">
-                            ✍️ {{ book.author }}
+                            <span class="display-mode" id="author-display-{{ book.id }}">
+                                ✍️ {{ book.author }}
+                            </span>
+                            <input type="text" class="edit-mode" id="author-edit-{{ book.id }}" 
+                                   value="{{ book.author }}" style="display: none; width: 90%; padding: 8px; 
+                                   border: 2px solid #667eea; border-radius: 5px;">
                         </td>
+                        
+                        <!-- ISBN (Editable) -->
                         <td style="padding: 12px; text-align: center; color: #64748b; font-family: 'Courier New', monospace;">
-                            {{ book.isbn or "N/A" }}
+                            <span class="display-mode" id="isbn-display-{{ book.id }}">
+                                {{ book.isbn or "N/A" }}
+                            </span>
+                            <input type="text" class="edit-mode" id="isbn-edit-{{ book.id }}" 
+                                   value="{{ book.isbn or '' }}" style="display: none; width: 90%; padding: 8px; 
+                                   border: 2px solid #667eea; border-radius: 5px;">
                         </td>
+                        
+                        <!-- Date Added (Non-editable) -->
                         <td style="padding: 12px; text-align: center; color: #059669; font-weight: 600;">
                             📅 {{ book.date_added }}
                         </td>
+                        
+                        <!-- Actions -->
                         <td style="padding: 12px; text-align: center;">
+                            <!-- Edit Button (Display Mode) -->
+                            <button type="button" class="display-mode edit-btn" id="edit-btn-{{ book.id }}"
+                                    onclick="enableEdit({{ book.id }})"
+                                    style="background: #ffc107; color: white; padding: 6px 12px; 
+                                           border: none; border-radius: 5px; cursor: pointer; 
+                                           font-weight: 600; font-size: 12px; margin-right: 5px;">
+                                ✏️ Edit
+                            </button>
+                            
+                            <!-- Save Button (Edit Mode) -->
+                            <button type="button" class="edit-mode save-btn" id="save-btn-{{ book.id }}"
+                                    onclick="saveBook({{ book.id }})"
+                                    style="display: none; background: #28a745; color: white; padding: 6px 12px; 
+                                           border: none; border-radius: 5px; cursor: pointer; 
+                                           font-weight: 600; font-size: 12px; margin-right: 5px;">
+                                💾 Save
+                            </button>
+                            
+                            <!-- Cancel Button (Edit Mode) -->
+                            <button type="button" class="edit-mode cancel-btn" id="cancel-btn-{{ book.id }}"
+                                    onclick="cancelEdit({{ book.id }})"
+                                    style="display: none; background: #6c757d; color: white; padding: 6px 12px; 
+                                           border: none; border-radius: 5px; cursor: pointer; 
+                                           font-weight: 600; font-size: 12px; margin-right: 5px;">
+                                ❌ Cancel
+                            </button>
+                            
+                            <!-- Delete Button -->
                             <form method="post" 
                                   action="{{ url_for('books.delete_book_route', book_id=book.id) }}"
                                   onsubmit="return confirm('Are you sure you want to delete this book?');"
-                                  style="margin: 0;">
+                                  style="display: inline;">
                                 <button type="submit"
-                                        style="background: #ef4444; color: white; padding: 8px 16px; 
-                                               border: none; border-radius: 6px; cursor: pointer; 
-                                               font-weight: 600; font-size: 13px;">
+                                        style="background: #ef4444; color: white; padding: 6px 12px; 
+                                               border: none; border-radius: 5px; cursor: pointer; 
+                                               font-weight: 600; font-size: 12px;">
                                     🗑️ Delete
                                 </button>
                             </form>
@@ -117,6 +183,106 @@
         transform: scale(1.05);
         transition: all 0.2s ease;
     }
+
+    .edit-mode input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
 </style>
+
+<script>
+    // Store original values for cancel functionality
+    const originalValues = {};
+
+    function enableEdit(bookId) {
+        // Store original values
+        originalValues[bookId] = {
+            bookname: document.getElementById(`bookname-display-${bookId}`).textContent.replace('📖 ', '').trim(),
+            author: document.getElementById(`author-display-${bookId}`).textContent.replace('✍️ ', '').trim(),
+            isbn: document.getElementById(`isbn-display-${bookId}`).textContent.trim()
+        };
+
+        // Hide all display elements in this row
+        document.querySelectorAll(`#book-row-${bookId} .display-mode`).forEach(el => {
+            el.style.display = 'none';
+        });
+
+        // Show all edit elements in this row
+        document.querySelectorAll(`#book-row-${bookId} .edit-mode`).forEach(el => {
+            el.style.display = 'inline-block';
+        });
+    }
+
+    function cancelEdit(bookId) {
+        // Restore original values
+        document.getElementById(`bookname-edit-${bookId}`).value = originalValues[bookId].bookname;
+        document.getElementById(`author-edit-${bookId}`).value = originalValues[bookId].author;
+        document.getElementById(`isbn-edit-${bookId}`).value = originalValues[bookId].isbn === 'N/A' ? '' : originalValues[bookId].isbn;
+
+        // Show all display elements in this row
+        document.querySelectorAll(`#book-row-${bookId} .display-mode`).forEach(el => {
+            el.style.display = 'inline-block';
+        });
+
+        // Hide all edit elements in this row
+        document.querySelectorAll(`#book-row-${bookId} .edit-mode`).forEach(el => {
+            el.style.display = 'none';
+        });
+    }
+
+    function saveBook(bookId) {
+        const bookname = document.getElementById(`bookname-edit-${bookId}`).value.trim();
+        const author = document.getElementById(`author-edit-${bookId}`).value.trim();
+        const isbn = document.getElementById(`isbn-edit-${bookId}`).value.trim();
+
+        // Validate inputs
+        if (!bookname || !author) {
+            alert('Book name and author are required!');
+            return;
+        }
+
+        // Send AJAX request to update book
+        fetch(`/books/edit/${bookId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                book_name: bookname,
+                author: author,
+                isbn: isbn || null
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update display values
+                document.getElementById(`bookname-display-${bookId}`).textContent = `📖 ${bookname}`;
+                document.getElementById(`author-display-${bookId}`).textContent = `✍️ ${author}`;
+                document.getElementById(`isbn-display-${bookId}`).textContent = isbn || 'N/A';
+
+                // Show display elements
+                document.querySelectorAll(`#book-row-${bookId} .display-mode`).forEach(el => {
+                    el.style.display = 'inline-block';
+                });
+
+                // Hide edit elements
+                document.querySelectorAll(`#book-row-${bookId} .edit-mode`).forEach(el => {
+                    el.style.display = 'none';
+                });
+
+                // Show success message
+                alert('✅ Book updated successfully!');
+            } else {
+                alert('❌ Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('❌ An error occurred while updating the book.');
+        });
+    }
+</script>
 
 {% endblock %}

@@ -38,38 +38,75 @@
             <th>Roll No</th>
             <th>Department</th>
             <th>Issue</th>
-            <th>Delete User</th>
+            <th>Actions</th>
         </tr>
     </thead>
 
     <tbody>
         {% for user in users %}
-        <tr>
-            <td>{{ user[1] }}</td>
-            <td>{{ user[2] }}</td>
-            <td>{{ user[3] }}</td>
-
-            
-            <!-- ISSUE COLUMN -->
-<td>
-    {% if user[5] %}
-        Issue Date: {{ user[5] }} <br>
-        Return Date: {{ user[6] }}
-    {% else %}
-        <form method="post" action="{{ url_for('users.issue_book', user_id=user[0]) }}">
-            <button type="submit">Issue</button>
-        </form>
-    {% endif %}
-</td>
-
-
-
-            <!-- DELETE USER -->
+        <tr id="user-row-{{ user[0] }}">
+            <!-- Display Mode -->
             <td>
-                <form method="post" action="{{ url_for('users.delete_user', user_id=user[0]) }}"
-                      onsubmit="return confirm('Are you sure you want to delete this user?');">
-                    <button type="submit" style="background-color:#d9534f; color:white;">
-                        Delete
+                <span class="display-mode" id="username-display-{{ user[0] }}">{{ user[1] }}</span>
+                <input type="text" class="edit-mode" id="username-edit-{{ user[0] }}" value="{{ user[1] }}" style="display: none;">
+            </td>
+            <td>
+                <span class="display-mode" id="rollno-display-{{ user[0] }}">{{ user[2] }}</span>
+                <input type="text" class="edit-mode" id="rollno-edit-{{ user[0] }}" value="{{ user[2] }}" style="display: none;">
+            </td>
+            <td>
+                <span class="display-mode" id="department-display-{{ user[0] }}">{{ user[3] }}</span>
+                <input type="text" class="edit-mode" id="department-edit-{{ user[0] }}" value="{{ user[3] }}" style="display: none;">
+            </td>
+
+            <!-- ISSUE COLUMN -->
+            <td>
+                {% if user[5] %}
+                    Issue Date: {{ user[5] }} <br>
+                    Return Date: {{ user[6] }}
+                {% else %}
+                    <form method="post" action="{{ url_for('users.issue_book', user_id=user[0]) }}">
+                        <button type="submit">Issue</button>
+                    </form>
+                {% endif %}
+            </td>
+
+            <!-- ACTIONS COLUMN -->
+            <td>
+                <!-- Edit Button (Display Mode) -->
+                <button type="button" 
+                        class="edit-btn display-mode" 
+                        id="edit-btn-{{ user[0] }}"
+                        onclick="enableEdit({{ user[0] }})"
+                        style="background-color:#ffc107; color:white; margin-right:5px; padding:8px 16px; border:none; border-radius:5px; cursor:pointer;">
+                    ✏️ Edit
+                </button>
+
+                <!-- Save Button (Edit Mode - Hidden by default) -->
+                <button type="button" 
+                        class="save-btn edit-mode" 
+                        id="save-btn-{{ user[0] }}"
+                        onclick="saveUser({{ user[0] }})"
+                        style="display: none; background-color:#28a745; color:white; margin-right:5px; padding:8px 16px; border:none; border-radius:5px; cursor:pointer;">
+                    💾 Save
+                </button>
+
+                <!-- Cancel Button (Edit Mode - Hidden by default) -->
+                <button type="button" 
+                        class="cancel-btn edit-mode" 
+                        id="cancel-btn-{{ user[0] }}"
+                        onclick="cancelEdit({{ user[0] }})"
+                        style="display: none; background-color:#6c757d; color:white; margin-right:5px; padding:8px 16px; border:none; border-radius:5px; cursor:pointer;">
+                    ❌ Cancel
+                </button>
+
+                <!-- Delete Button -->
+                <form method="post" 
+                      action="{{ url_for('users.delete_user', user_id=user[0]) }}"
+                      onsubmit="return confirm('Are you sure you want to delete this user?');"
+                      style="display: inline;">
+                    <button type="submit" style="background-color:#d9534f; color:white; padding:8px 16px; border:none; border-radius:5px; cursor:pointer;">
+                        🗑️ Delete
                     </button>
                 </form>
             </td>
@@ -77,5 +114,121 @@
         {% endfor %}
     </tbody>
 </table>
+
+<script>
+    // Store original values for cancel functionality
+    const originalValues = {};
+
+    function enableEdit(userId) {
+        // Store original values
+        originalValues[userId] = {
+            username: document.getElementById(`username-display-${userId}`).textContent,
+            rollno: document.getElementById(`rollno-display-${userId}`).textContent,
+            department: document.getElementById(`department-display-${userId}`).textContent
+        };
+
+        // Hide display elements
+        document.querySelectorAll(`#user-row-${userId} .display-mode`).forEach(el => {
+            el.style.display = 'none';
+        });
+
+        // Show edit elements
+        document.querySelectorAll(`#user-row-${userId} .edit-mode`).forEach(el => {
+            el.style.display = 'inline-block';
+        });
+    }
+
+    function cancelEdit(userId) {
+        // Restore original values
+        document.getElementById(`username-edit-${userId}`).value = originalValues[userId].username;
+        document.getElementById(`rollno-edit-${userId}`).value = originalValues[userId].rollno;
+        document.getElementById(`department-edit-${userId}`).value = originalValues[userId].department;
+
+        // Show display elements
+        document.querySelectorAll(`#user-row-${userId} .display-mode`).forEach(el => {
+            el.style.display = 'inline-block';
+        });
+
+        // Hide edit elements
+        document.querySelectorAll(`#user-row-${userId} .edit-mode`).forEach(el => {
+            el.style.display = 'none';
+        });
+    }
+
+    function saveUser(userId) {
+        const username = document.getElementById(`username-edit-${userId}`).value;
+        const rollno = document.getElementById(`rollno-edit-${userId}`).value;
+        const department = document.getElementById(`department-edit-${userId}`).value;
+
+        // Validate inputs
+        if (!username.trim() || !rollno.trim() || !department.trim()) {
+            alert('All fields are required!');
+            return;
+        }
+
+        // Send AJAX request to update user
+        fetch(`/users/edit/${userId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: username,
+                roll_no: rollno,
+                department: department
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update display values
+                document.getElementById(`username-display-${userId}`).textContent = username;
+                document.getElementById(`rollno-display-${userId}`).textContent = rollno;
+                document.getElementById(`department-display-${userId}`).textContent = department;
+
+                // Show display elements
+                document.querySelectorAll(`#user-row-${userId} .display-mode`).forEach(el => {
+                    el.style.display = 'inline-block';
+                });
+
+                // Hide edit elements
+                document.querySelectorAll(`#user-row-${userId} .edit-mode`).forEach(el => {
+                    el.style.display = 'none';
+                });
+
+                // Show success message
+                alert('✅ User updated successfully!');
+            } else {
+                alert('❌ Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('❌ An error occurred while updating the user.');
+        });
+    }
+</script>
+
+<style>
+    .edit-mode {
+        padding: 8px;
+        border: 2px solid #007bff;
+        border-radius: 5px;
+        font-size: 14px;
+        width: 90%;
+    }
+
+    .edit-mode:focus {
+        outline: none;
+        border-color: #0056b3;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    .users-table button:hover {
+        opacity: 0.9;
+        transform: scale(1.05);
+        transition: all 0.2s ease;
+    }
+</style>
 
 {% endblock %}

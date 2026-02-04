@@ -12,7 +12,8 @@
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% for category, message in messages %}
     {% if category == 'book' %}
-      <div class="book-flash">
+      <div class="book-flash" style="background: #d1fae5; color: #065f46; padding: 15px; 
+           border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #10b981; text-align: center;">
         {{ message }}
       </div>
     {% endif %}
@@ -42,21 +43,18 @@
                     </select>
                 </div>
 
-               <!-- Subcategory Dropdown -->
-<!-- Subcategory Dropdown -->
-<div style="flex: 1; min-width: 200px;">
-    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #1e293b;">
-        Subcategory
-    </label>
-
-    <select name="subcategory" id="subcategorySelect" required
-            class="book-form"
-            style="width: 100%; padding: 12px; border: 2px solid #cbd5e1; 
-                   border-radius: 8px; font-size: 15px; outline: none;">
-        <option value="">Select Subcategory</option>
-    </select>
-</div>
-
+                <!-- Subcategory Dropdown -->
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #1e293b;">
+                        Subcategory
+                    </label>
+                    <select name="subcategory" id="subcategorySelect" required
+                            class="book-form"
+                            style="width: 100%; padding: 12px; border: 2px solid #cbd5e1; 
+                                   border-radius: 8px; font-size: 15px; outline: none;">
+                        <option value="">Select Subcategory</option>
+                    </select>
+                </div>
 
                 <!-- Book Name -->
                 <div style="flex: 1; min-width: 200px;">
@@ -138,7 +136,7 @@
                 <div style="font-size: 56px; margin-bottom: 15px;">💻</div>
                 <h3 style="margin: 0; font-size: 24px; font-weight: 700;">Computer Science</h3>
                 <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">
-                    C++, C & More
+                    C++, C, AI & More
                 </p>
             </div>
         </a>
@@ -157,7 +155,6 @@
         box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
     }
 </style>
-
 
 <script>
 document.getElementById("categorySelect").addEventListener("change", function () {
