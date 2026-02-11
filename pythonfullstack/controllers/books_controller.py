@@ -104,7 +104,7 @@ def add_book_route():
     conn.close()
 
     flash("Book saved successfully!", "book")
-    return redirect(url_for("books.books"))
+    return redirect(url_for("books.saved_books"))
 
 @books_bp.route("/saved")
 def saved_books():

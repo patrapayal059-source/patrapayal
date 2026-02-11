@@ -34,6 +34,7 @@
 <table class="users-table">
     <thead>
         <tr>
+            <th>user_id</th>
             <th>Username</th>
             <th>Roll No</th>
             <th>Department</th>
@@ -46,6 +47,12 @@
         {% for user in users %}
         <tr id="user-row-{{ user[0] }}">
             <!-- Display Mode -->
+            
+
+    <!-- USER ID -->
+    <td>
+        {{ user[0] }}
+    </td>
             <td>
                 <span class="display-mode" id="username-display-{{ user[0] }}">{{ user[1] }}</span>
                 <input type="text" class="edit-mode" id="username-edit-{{ user[0] }}" value="{{ user[1] }}" style="display: none;">

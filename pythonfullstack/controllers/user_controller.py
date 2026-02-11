@@ -51,7 +51,7 @@ def add_user():
 
     cur.execute("""
         INSERT INTO users (username, roll_no, department, library_id)
-        VALUES (?, ?, ?, ?)
+        VALUES ( ?, ?, ?, ?)
     """, (username, roll_no, department, LIBRARY_ID))
 
     db.commit()
